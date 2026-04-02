@@ -6,8 +6,8 @@ import { PrismaModule } from '@presentation/modules/prisma.module';
 import { RedisModule } from '@presentation/modules/redis.module';
 import { UserModule } from '@presentation/modules/user.module';
 import { HttpExceptionFilter } from '@shared/filters/http-exception.filter';
-import { LoggingInterceptor } from '@shared/interceptors/logging.interceptor';
 import { TraceIdInterceptor } from '@shared/interceptors/trace-id.interceptor';
+import { TransformResponseInterceptor } from '@shared/interceptors/transform-response.interceptor';
 import { WinstonLoggerService } from '@shared/logger/winston-logger.service';
 
 @Global()
@@ -33,7 +33,7 @@ import { WinstonLoggerService } from '@shared/logger/winston-logger.service';
     },
     {
       provide: APP_INTERCEPTOR,
-      useClass: LoggingInterceptor,
+      useClass: TransformResponseInterceptor,
     },
   ],
   controllers: [HealthController],
