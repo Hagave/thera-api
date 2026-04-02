@@ -1,71 +1,55 @@
-import { hash } from 'bcrypt';
-import { PrismaClient } from './generated/prisma/client';
+import 'dotenv/config';
 import { PrismaPg } from '@prisma/adapter-pg';
+import { Pool } from 'pg';
+import { PrismaClient } from './generated/prisma/client';
+import { products } from './seeds/products';
+import { users } from './seeds/users';
 
-const prisma = new PrismaClient({
-  adapter: new PrismaPg({ connectionString: process.env.DATABASE_URL }),
-});
+const pool = new Pool({ connectionString: process.env.DATABASE_URL });
+const adapter = new PrismaPg(pool);
+const prisma = new PrismaClient({ adapter });
+
+type SeedFunction = (prisma: PrismaClient) => Promise<void>;
+
+interface Seed {
+  name: string;
+  run: SeedFunction;
+}
+
+const seeds: Seed[] = [
+  {
+    name: 'Products',
+    run: products,
+  },
+  {
+    name: 'Users',
+    run: users,
+  },
+];
+
 async function main() {
-  console.log('🌱 Starting seed...');
+  console.log('🌱 Starting database seeding...\n');
 
-  // Limpar dados existentes
-  await prisma.orderItem.deleteMany();
-  await prisma.order.deleteMany();
-  await prisma.product.deleteMany();
-  await prisma.refreshToken.deleteMany();
-  await prisma.user.deleteMany();
+  for (const seed of seeds) {
+    try {
+      console.log(`📦 Running seed: ${seed.name}...`);
+      await seed.run(prisma);
+      console.log(`✅ ${seed.name} seed completed\n`);
+    } catch (error) {
+      console.error(`❌ Error running ${seed.name} seed:`, error);
+      throw error;
+    }
+  }
 
-  // Criar usuário admin
-  const hashedPassword = await hash('Admin@123', 10);
-  const admin = await prisma.user.create({
-    data: {
-      name: 'Admin User',
-      email: 'admin@example.com',
-      password: hashedPassword,
-    },
-  });
-
-  // Criar produtos
-  const products = await Promise.all([
-    prisma.product.create({
-      data: {
-        name: 'Notebook Dell',
-        category: 'Electronics',
-        description: 'High performance laptop',
-        price: 3500.0,
-        stock: 10,
-      },
-    }),
-    prisma.product.create({
-      data: {
-        name: 'Mouse Logitech',
-        category: 'Electronics',
-        description: 'Wireless mouse',
-        price: 150.0,
-        stock: 50,
-      },
-    }),
-    prisma.product.create({
-      data: {
-        name: 'Keyboard Mechanical',
-        category: 'Electronics',
-        description: 'RGB mechanical keyboard',
-        price: 450.0,
-        stock: 30,
-      },
-    }),
-  ]);
-
-  console.log('✅ Seed completed!');
-  console.log(`👤 Admin: ${admin.email} / Admin@123`);
-  console.log(`📦 Products created: ${products.length}`);
+  console.log('🎉 All seeds completed successfully!');
 }
 
 main()
-  .catch((e) => {
-    console.error('❌ Seed failed:', e);
+  .catch((error) => {
+    console.error('❌ Seeding failed:', error);
     process.exit(1);
   })
   .finally(async () => {
     await prisma.$disconnect();
+    await pool.end();
   });

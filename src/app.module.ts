@@ -4,7 +4,8 @@ import { APP_FILTER, APP_INTERCEPTOR } from '@nestjs/core';
 import { HealthController } from '@presentation/controllers/health/health.controller';
 import { PrismaModule } from '@presentation/modules/prisma.module';
 import { RedisModule } from '@presentation/modules/redis.module';
-import { DomainExceptionFilter } from '@shared/filters/domain-exception.filter';
+import { UserModule } from '@presentation/modules/user.module';
+import { HttpExceptionFilter } from '@shared/filters/http-exception.filter';
 import { LoggingInterceptor } from '@shared/interceptors/logging.interceptor';
 import { TraceIdInterceptor } from '@shared/interceptors/trace-id.interceptor';
 import { WinstonLoggerService } from '@shared/logger/winston-logger.service';
@@ -18,12 +19,13 @@ import { WinstonLoggerService } from '@shared/logger/winston-logger.service';
     }),
     PrismaModule,
     RedisModule,
+    UserModule,
   ],
   providers: [
     WinstonLoggerService,
     {
       provide: APP_FILTER,
-      useClass: DomainExceptionFilter,
+      useClass: HttpExceptionFilter,
     },
     {
       provide: APP_INTERCEPTOR,
