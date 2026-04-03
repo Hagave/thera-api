@@ -4,7 +4,6 @@ import {
   IProductRepository,
   PRODUCT_REPOSITORY,
 } from '@domain/product/repositories/product.repository';
-import { PrismaService } from '@infrastructure/database/prisma/prisma.service';
 import { Inject, Injectable } from '@nestjs/common';
 import { v4 as uuidv4 } from 'uuid';
 import { ICreateOrderInput, ICreateOrderOutput } from './create-order.use-case.dto';
@@ -14,6 +13,9 @@ import { OrderItem } from '@domain/order/entities/order-item.entity';
 import { Money } from '@shared/value-objects/money.vo';
 import { Order } from '@domain/order/entities/order.entity';
 import { OrderStatus } from '@domain/order/value-objects/order-status.vo';
+import { RedisIdempotencyRepository } from '@infrastructure/cache/repositories/redis-idempotency.repository';
+import { DuplicateRequestException } from '@shared/exceptions/duplicate-request.exception';
+import { RedisPendingOrderRepository } from '@infrastructure/cache/repositories/redis-pending-order.repository';
 
 @Injectable()
 export class CreateOrderUseCase {
@@ -22,16 +24,25 @@ export class CreateOrderUseCase {
     private readonly orderRepository: IOrderRepository,
     @Inject(PRODUCT_REPOSITORY)
     private readonly productRepository: IProductRepository,
-    private readonly prisma: PrismaService,
+    private readonly idempotencyRepository: RedisIdempotencyRepository,
+    private readonly pendingOrderRepository: RedisPendingOrderRepository,
   ) {}
 
   async execute(input: ICreateOrderInput): Promise<ICreateOrderOutput> {
+    // Verificar idempotência
+    if (input.idempotencyKey) {
+      const existing = await this.idempotencyRepository.get(input.idempotencyKey);
+      if (existing) {
+        throw new DuplicateRequestException(existing.orderId);
+      }
+    }
+
     // Validar pedido não vazio
     if (!input.items || input.items.length === 0) {
       throw new EmptyOrderException();
     }
 
-    // Buscar todos os produtos em paralelo
+    // Buscar todos os produtos
     const productPromises = input.items.map((item) =>
       this.productRepository.findById(item.productId),
     );
@@ -45,15 +56,6 @@ export class CreateOrderUseCase {
 
       if (!product || product.isDeleted()) {
         throw new ProductNotFoundException(requestedItem.productId);
-      }
-
-      // Validar estoque disponível
-      if (!product.hasStock(requestedItem.quantity)) {
-        throw new InsufficientStockException(
-          product.getName(),
-          product.getStock(),
-          requestedItem.quantity,
-        );
       }
 
       productMap.set(product.getId(), product);
@@ -83,10 +85,7 @@ export class CreateOrderUseCase {
       updatedAt: new Date(),
     });
 
-    // Calcular total
     const total = order.calculateTotal();
-
-    // Recriar order com total calculado
     const finalOrder = new Order({
       id: order.getId(),
       userId: order.getUserId(),
@@ -97,10 +96,26 @@ export class CreateOrderUseCase {
       updatedAt: order.getUpdatedAt(),
     });
 
-    // Persistir
-    const created = await this.orderRepository.create(finalOrder);
+    // Preparar reservas de estoque
+    const stockReservations = new Map<string, number>();
+    for (const item of finalOrder.getItems()) {
+      stockReservations.set(item.getProductId(), item.getQuantity());
+    }
 
-    // Retornar output
+    // Criar pedido COM reserva de estoque (transação atômica)
+    const created = await this.orderRepository.createOrderWithStockReservation(
+      finalOrder,
+      stockReservations,
+    );
+
+    // Adicionar ao Redis como PENDING (expira em 30min)
+    await this.pendingOrderRepository.addPendingOrder(created.getId(), input.userId);
+
+    // Salvar idempotency key
+    if (input.idempotencyKey) {
+      await this.idempotencyRepository.set(input.idempotencyKey, created.getId());
+    }
+
     return {
       id: created.getId(),
       userId: created.getUserId(),

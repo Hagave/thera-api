@@ -3,6 +3,7 @@ import { LogoutUseCase } from '@application/usecases/logout/logout.use-case';
 import { RefreshTokenUseCase } from '@application/usecases/refresh-token/refresh-token.use-case';
 import { Body, Controller, Post, Get, UseGuards } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
+import { Throttle } from '@nestjs/throttler';
 import { LoginRequestDto, LoginResponseDto } from '@presentation/dtos/auth/login.dto';
 import { LogoutRequestDto, LogoutResponseDto } from '@presentation/dtos/auth/logout.dto';
 import {
@@ -21,6 +22,7 @@ export class AuthController {
     private readonly logoutUseCase: LogoutUseCase,
   ) {}
 
+  @Throttle({ default: { ttl: 60000, limit: 5 } })
   @Post('login')
   @ApiOperation({ summary: 'User login' })
   @ApiResponse({ status: 200, description: 'Login successful', type: LoginResponseDto })
@@ -29,6 +31,7 @@ export class AuthController {
     return await this.loginUseCase.execute(dto);
   }
 
+  @Throttle({ default: { ttl: 60000, limit: 10 } })
   @Post('refresh')
   @ApiOperation({ summary: 'Refresh access token' })
   @ApiResponse({
