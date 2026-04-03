@@ -10,32 +10,49 @@
 
 ```mermaid
 graph TB
-    subgraph "Presentation"
-        HTTP[Controllers + DTOs]
-    end
-
-    subgraph "Application"
-        UseCases[Use Cases + Services]
-    end
-
-    subgraph "Domain"
-        Entities[Entities + VOs + Rules]
-        IRepo[Repository Interfaces]
-    end
-
-    subgraph "Infrastructure"
-        Prisma[Prisma Repos]
-        Redis[Redis Cache]
-    end
+    HTTP[Presentation<br/>Controllers + DTOs]
+    UseCases[Application<br/>Use Cases + Services]
+    Domain[Domain<br/>Entities + VOs + Rules]
+    IRepo[Domain<br/>Repository Interfaces]
+    Prisma[Infrastructure<br/>Prisma Repos]
+    Redis[Infrastructure<br/>Redis Cache]
 
     HTTP --> UseCases
-    UseCases --> Entities
+    UseCases --> Domain
     UseCases --> IRepo
     IRepo -.implements.- Prisma
     IRepo -.implements.- Redis
 
     style Domain fill:#90EE90
+    style IRepo fill:#FFE4B5
 ```
+
+```
+
+Ou versão ainda mais simples (ASCII art):
+```
+
+┌─────────────────────────────────────┐
+│ Presentation Layer │
+│ (Controllers, DTOs, Guards) │
+└──────────────┬──────────────────────┘
+│
+┌──────────────▼──────────────────────┐
+│ Application Layer │
+│ (Use Cases, Services) │
+└──────────────┬──────────────────────┘
+│
+┌──────────────▼──────────────────────┐
+│ Domain Layer (Core) │
+│ (Entities, VOs, Repo Interfaces) │
+└──────────────┬──────────────────────┘
+│
+┌──────────────▼──────────────────────┐
+│ Infrastructure Layer │
+│ (Prisma Repos, Redis, Mappers) │
+└──────┬────────────────────┬─────────┘
+│ │
+PostgreSQL Redis
 
 **Separação em 4 camadas:**
 

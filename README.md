@@ -140,7 +140,7 @@ nano .env
 docker compose up -d
 
 # 4. Rodar migrations
-docker compose exec app yarn prisma:migrate:deploy
+docker compose exec app yarn prisma migrate deploy
 
 # 5. Popular banco (opcional)
 docker compose exec app yarn db:seed
@@ -407,11 +407,11 @@ curl -X POST http://localhost:3000/orders \
 
 **O que acontece:**
 
-1. ✅ Valida estoque disponível
-2. ✅ **Reserva estoque** (transação atômica)
-3. ✅ Cria pedido como PENDING
-4. ✅ Adiciona ao Redis (TTL 30min)
-5. ✅ Salva idempotency key
+1.  Valida estoque disponível
+2.  **Reserva estoque** (transação atômica)
+3.  Cria pedido como PENDING
+4.  Adiciona ao Redis (TTL 30min)
+5.  Salva idempotency key
 
 **Completar Pedido:**
 
@@ -429,7 +429,7 @@ curl "http://localhost:3000/orders?page=1&limit=10" \
 
 ---
 
-### ⏰ Expiração Automática de Pedidos
+### Expiração Automática de Pedidos
 
 Pedidos PENDING que não são completados em **30 minutos** são **automaticamente cancelados** e o estoque é **devolvido**.
 
@@ -509,7 +509,7 @@ curl -v -X POST http://localhost:3000/orders \
 
 ---
 
-## 🔧 Comandos Úteis
+## Comandos Úteis
 
 ### Aplicação
 
@@ -530,21 +530,21 @@ yarn test:cov               # Com coverage
 
 ```bash
 # Prisma Studio (GUI do banco)
-yarn prisma:studio
+yarn prisma studio
 # Ou via Docker:
-docker compose exec app yarn prisma:studio
+docker compose exec app yarn prisma studio
 
 # Gerar Prisma Client
-yarn prisma:generate
+yarn prisma generate
 
 # Criar nova migration
-yarn prisma:migrate:dev --name nome_da_migration
+yarn prisma migrate:dev --name nome_da_migration
 
 # Aplicar migrations (produção)
-yarn prisma:migrate:deploy
+yarn prisma migrate deploy
 
 # Reset banco (CUIDADO - apaga tudo)
-yarn prisma:migrate:reset
+yarn prisma migrate reset
 
 # Seed
 yarn db:seed
@@ -618,7 +618,7 @@ SELECT id, name, price, stock, category FROM products;
 
 ---
 
-## 🌍 Variáveis de Ambiente
+## Variáveis de Ambiente
 
 Copie `.env.example` para `.env` e configure:
 
@@ -654,15 +654,13 @@ LOG_LEVEL=info
 LOG_FILE_PATH=./logs
 ```
 
-**⚠️ IMPORTANTE:** Mude os secrets em produção!
-
 ---
 
 ## 📚 Documentação Adicional
 
 - **[ARCHITECTURE.md](./ARCHITECTURE.md)** - Arquitetura detalhada, decisões de design, SOLID, patterns
 - **Swagger UI:** http://localhost:3000/api - Documentação interativa da API
-- **Prisma Studio:** `yarn prisma:studio` - GUI do banco de dados
+- **Prisma Studio:** `yarn prisma studio` - GUI do banco de dados
 
 ---
 
@@ -780,7 +778,7 @@ curl http://localhost:3000/products/$PRODUCT_ID
 
 ---
 
-## 🐛 Troubleshooting
+## Troubleshooting
 
 ### Porta já em uso
 
@@ -809,15 +807,15 @@ sudo apt-get install docker-compose-plugin
 ### Prisma Client não gerado
 
 ```bash
-docker compose exec app yarn prisma:generate
+docker compose exec app yarn prisma generate
 # Ou localmente:
-yarn prisma:generate
+yarn prisma generate
 ```
 
 ### Migrations não aplicadas
 
 ```bash
-docker compose exec app yarn prisma:migrate:deploy
+docker compose exec app yarn prisma migrate deploy
 ```
 
 ### Redis/PostgreSQL não sobe
@@ -839,7 +837,6 @@ Certifique-se que `/app/dist` NÃO está nos volumes do docker-compose.yml:
 volumes:
   - .:/app
   - /app/node_modules
-  # NÃO incluir: - /app/dist
 ```
 
 ---
@@ -850,9 +847,9 @@ Este projeto foi desenvolvido como teste técnico.
 
 ---
 
-## 👤 Autor
+## Autor
 
-**Héverton** - Tech Lead Candidate
+**Héverton Vinícius** - Sênior Software Engineer
 
 ---
 
