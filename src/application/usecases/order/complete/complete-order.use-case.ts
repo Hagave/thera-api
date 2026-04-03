@@ -8,6 +8,7 @@ import {
 import { OrderNotFoundException } from '@domain/order/exceptions/order-not-found.exception';
 import { InvalidOrderStatusException } from '@domain/order/exceptions/invalid-order-status.exception';
 import { InsufficientStockException } from '@domain/product/exceptions/insufficient-stock.exception';
+import { RedisPendingOrderRepository } from '@infrastructure/cache/repositories/redis-pending-order.repository';
 
 @Injectable()
 export class CompleteOrderUseCase {
@@ -16,6 +17,7 @@ export class CompleteOrderUseCase {
     private readonly orderRepository: IOrderRepository,
     @Inject(PRODUCT_REPOSITORY)
     private readonly productRepository: IProductRepository,
+    private readonly pendingOrderRepository: RedisPendingOrderRepository,
   ) {}
 
   async execute(input: ICompleteOrderInput): Promise<ICompleteOrderOutput> {
@@ -56,6 +58,7 @@ export class CompleteOrderUseCase {
       order.getId(),
       stockUpdates,
     );
+    await this.pendingOrderRepository.removePendingOrder(updated.getId());
 
     return {
       id: updated.getId(),

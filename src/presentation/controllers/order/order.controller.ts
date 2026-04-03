@@ -3,7 +3,15 @@ import { CreateOrderUseCase } from '@application/usecases/order/create/create-or
 import { GetOrderUseCase } from '@application/usecases/order/get/get-order.use-case';
 import { ListOrdersUseCase } from '@application/usecases/order/list/list-orders.use-case';
 import { Body, Controller, Post, Get, Patch, Param, Query, UseGuards } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse, ApiParam, ApiBearerAuth } from '@nestjs/swagger';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiResponse,
+  ApiParam,
+  ApiBearerAuth,
+  ApiHeader,
+} from '@nestjs/swagger';
+import { Throttle } from '@nestjs/throttler';
 import { CompleteOrderResponseDto } from '@presentation/dtos/order/complete-order.dto';
 import {
   CreateOrderRequestDto,
@@ -29,8 +37,14 @@ export class OrderController {
     private readonly completeOrderUseCase: CompleteOrderUseCase,
   ) {}
 
+  @Throttle({ default: { ttl: 60000, limit: 20 } })
   @Post()
   @ApiOperation({ summary: 'Create a new order' })
+  @ApiHeader({
+    name: 'Idempotency-Key',
+    description: 'Unique key to prevent duplicate orders (optional, recommended: UUID)',
+    required: false,
+  })
   @ApiResponse({
     status: 201,
     description: 'Order created successfully',
@@ -86,6 +100,7 @@ export class OrderController {
     return await this.getOrderUseCase.execute({ id, userId: user.id });
   }
 
+  @Throttle({ default: { ttl: 60000, limit: 10 } })
   @Patch(':id/complete')
   @ApiOperation({ summary: 'Complete order and update stock' })
   @ApiParam({ name: 'id', description: 'Order ID (UUID)' })

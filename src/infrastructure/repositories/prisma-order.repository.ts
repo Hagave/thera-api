@@ -112,4 +112,67 @@ export class PrismaOrderRepository implements IOrderRepository {
       return this.mapper.toDomain(updated);
     });
   }
+  async createOrderWithStockReservation(
+    order: Order,
+    stockReservations: Map<string, number>,
+  ): Promise<Order> {
+    return await this.prisma.$transaction(async (tx) => {
+      // Reservar estoque (atômico com validação)
+      for (const [productId, quantity] of stockReservations.entries()) {
+        const updated = await tx.product.updateMany({
+          where: {
+            id: productId,
+            stock: { gte: quantity },
+            deletedAt: null,
+          },
+          data: {
+            stock: { decrement: quantity },
+          },
+        });
+
+        // Se não atualizou nenhuma linha = estoque insuficiente
+        if (updated.count === 0) {
+          throw new Error(`Insufficient stock for product ${productId}`);
+        }
+      }
+
+      // Criar pedido
+      const data = this.mapper.toPrismaCreate(order);
+      const created = await tx.order.create({
+        data,
+        include: { items: true },
+      });
+
+      return this.mapper.toDomain(created);
+    });
+  }
+
+  async cancelOrderWithStockReturn(
+    orderId: string,
+    stockReturns: Map<string, number>,
+  ): Promise<Order> {
+    return await this.prisma.$transaction(async (tx) => {
+      // Devolver estoque
+      for (const [productId, quantity] of stockReturns.entries()) {
+        await tx.product.update({
+          where: { id: productId },
+          data: {
+            stock: { increment: quantity },
+          },
+        });
+      }
+
+      // Atualizar status do pedido
+      const updated = await tx.order.update({
+        where: { id: orderId },
+        data: {
+          status: 'CANCELLED',
+          updatedAt: new Date(),
+        },
+        include: { items: true },
+      });
+
+      return this.mapper.toDomain(updated);
+    });
+  }
 }

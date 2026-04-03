@@ -1,6 +1,7 @@
 import { ExceptionFilter, Catch, ArgumentsHost, HttpException, HttpStatus } from '@nestjs/common';
 import { BusinessRuleException } from '@shared/exceptions/business-rule.exception';
 import { DomainException } from '@shared/exceptions/domain.exception';
+import { DuplicateRequestException } from '@shared/exceptions/duplicate-request.exception';
 import { NotFoundException } from '@shared/exceptions/not-found.exception';
 import { UnauthorizedException } from '@shared/exceptions/unauthorized.exception';
 import { ValidationException } from '@shared/exceptions/validation.exception';
@@ -30,6 +31,11 @@ export class HttpExceptionFilter implements ExceptionFilter {
       );
     }
 
+    if (exception instanceof DuplicateRequestException) {
+      reply.header('X-Resource-Id', exception.existingResourceId);
+    }
+
+    // Enviar resposta
     reply.status(status).send({
       statusCode: status,
       timestamp: new Date().toISOString(),
@@ -44,8 +50,8 @@ export class HttpExceptionFilter implements ExceptionFilter {
   }
 
   private getHttpStatus(exception: unknown): number {
-    if (exception instanceof HttpException) {
-      return exception.getStatus();
+    if (exception instanceof DuplicateRequestException) {
+      return HttpStatus.CONFLICT;
     }
 
     if (exception instanceof NotFoundException) {

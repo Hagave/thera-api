@@ -11,6 +11,12 @@ export interface IOrderRepository {
   findAll(page: number, limit: number): Promise<{ orders: Order[]; total: number }>;
   update(order: Order): Promise<Order>;
   completeOrderWithStockUpdate(orderId: string, stockUpdates: Map<string, number>): Promise<Order>; // NOVO
+  completeOrderWithStockUpdate(orderId: string, stockUpdates: Map<string, number>): Promise<Order>;
+  cancelOrderWithStockReturn(orderId: string, stockReturns: Map<string, number>): Promise<Order>; // NOVO
+  createOrderWithStockReservation(
+    order: Order,
+    stockReservations: Map<string, number>,
+  ): Promise<Order>;
 }
 
 export const ORDER_REPOSITORY = Symbol('ORDER_REPOSITORY');

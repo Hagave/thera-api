@@ -7,31 +7,36 @@ import { Email } from '@shared/value-objects/email.vo';
 import { EmailAlreadyExistsException } from '@domain/user/exceptions/email-already-exists.exception';
 import { User } from '@domain/user/entities/user.entity';
 import { WeakPasswordException } from '@domain/user/exceptions/weak-password.exception';
+import { RedisIdempotencyRepository } from '@infrastructure/cache/repositories/redis-idempotency.repository';
+import { DuplicateRequestException } from '@shared/exceptions/duplicate-request.exception';
 
 @Injectable()
 export class CreateUserUseCase {
   constructor(
     @Inject(USER_REPOSITORY)
     private readonly userRepository: IUserRepository,
+    private readonly idempotencyRepository: RedisIdempotencyRepository,
   ) {}
 
   async execute(input: ICreateUserInput): Promise<ICreateUserOutput> {
-    // Validar senha forte
+    if (input.idempotencyKey) {
+      const existing = await this.idempotencyRepository.get(input.idempotencyKey);
+      if (existing) {
+        throw new DuplicateRequestException(existing.orderId);
+      }
+    }
+
     this.validatePassword(input.password);
 
-    // Criar Value Object Email (já valida formato)
     const email = new Email(input.email);
 
-    // Verificar se email já existe
     const existingUser = await this.userRepository.findByEmail(email.getValue());
     if (existingUser) {
       throw new EmailAlreadyExistsException(email.getValue());
     }
 
-    // Hash da senha
     const hashedPassword = await hash(input.password, 10);
 
-    // Criar entidade User
     const user = new User({
       id: uuidv4(),
       name: input.name,
@@ -41,8 +46,11 @@ export class CreateUserUseCase {
       updatedAt: new Date(),
     });
 
-    // Persistir
     const created = await this.userRepository.create(user);
+
+    if (input.idempotencyKey) {
+      await this.idempotencyRepository.set(input.idempotencyKey, created.getId());
+    }
 
     return {
       id: created.getId(),

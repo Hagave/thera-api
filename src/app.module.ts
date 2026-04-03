@@ -12,7 +12,9 @@ import { HttpExceptionFilter } from '@shared/filters/http-exception.filter';
 import { TraceIdInterceptor } from '@shared/interceptors/trace-id.interceptor';
 import { TransformResponseInterceptor } from '@shared/interceptors/transform-response.interceptor';
 import { WinstonLoggerService } from '@shared/logger/winston-logger.service';
-
+import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
+import { APP_GUARD } from '@nestjs/core';
+import { SchedulerModule } from '@presentation/modules/scheduler.module';
 @Global()
 @Module({
   imports: [
@@ -20,12 +22,19 @@ import { WinstonLoggerService } from '@shared/logger/winston-logger.service';
       isGlobal: true,
       envFilePath: '.env',
     }),
+    ThrottlerModule.forRoot([
+      {
+        ttl: 60000, // 60 segundos
+        limit: 100, // 100 requests
+      },
+    ]),
     AuthModule,
     PrismaModule,
     RedisModule,
     UserModule,
     ProductModule,
     OrderModule,
+    SchedulerModule,
   ],
   providers: [
     WinstonLoggerService,
@@ -40,6 +49,10 @@ import { WinstonLoggerService } from '@shared/logger/winston-logger.service';
     {
       provide: APP_INTERCEPTOR,
       useClass: TransformResponseInterceptor,
+    },
+    {
+      provide: APP_GUARD,
+      useClass: ThrottlerGuard,
     },
   ],
   controllers: [HealthController],

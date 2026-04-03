@@ -6,6 +6,7 @@ export interface ICreateOrderItemInput {
 export interface ICreateOrderInput {
   userId: string;
   items: ICreateOrderItemInput[];
+  idempotencyKey?: string;
 }
 
 export interface ICreateOrderOutput {

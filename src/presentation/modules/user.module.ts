@@ -8,6 +8,7 @@ import { DeleteUserUseCase } from '@application/usecases/user/delete/delete-user
 import { UserMapper } from '@infrastructure/mappers/user.mapper';
 import { USER_REPOSITORY } from '@domain/user/repositories/user.repository';
 import { PrismaUserRepository } from '@infrastructure/repositories/prisma-user.repository';
+import { RedisIdempotencyRepository } from '@infrastructure/cache/repositories/redis-idempotency.repository';
 @Module({
   controllers: [UserController],
   providers: [
@@ -17,6 +18,7 @@ import { PrismaUserRepository } from '@infrastructure/repositories/prisma-user.r
     UpdateUserUseCase,
     DeleteUserUseCase,
     UserMapper,
+    RedisIdempotencyRepository,
     {
       provide: USER_REPOSITORY,
       useClass: PrismaUserRepository,

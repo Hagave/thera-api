@@ -4,7 +4,8 @@ import { GetUserUseCase } from '@application/usecases/user/get/get-user.use-case
 import { ListUsersUseCase } from '@application/usecases/user/list/list-users.use-case';
 import { UpdateUserUseCase } from '@application/usecases/user/update/update-user.use-case';
 import { Body, Controller, Post, Get, Patch, Delete, Param, Query } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse, ApiParam } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiResponse, ApiParam, ApiHeader } from '@nestjs/swagger';
+import { Throttle } from '@nestjs/throttler';
 import {
   CreateUserRequestDto,
   CreateUserResponseDto,
@@ -28,14 +29,21 @@ export class UserController {
     private readonly deleteUserUseCase: DeleteUserUseCase,
   ) {}
 
+  @Throttle({ default: { ttl: 60000, limit: 10 } })
   @Post()
   @ApiOperation({ summary: 'Create a new user' })
+  @ApiHeader({
+    name: 'Idempotency-Key',
+    description: 'Unique key to prevent duplicate users (optional, recommended: UUID)',
+    required: false,
+  })
   @ApiResponse({
     status: 201,
     description: 'User created successfully',
     type: CreateUserResponseDto,
   })
   @ApiResponse({ status: 400, description: 'Invalid input or weak password' })
+  @ApiResponse({ status: 409, description: 'Duplicate request (idempotency key already used)' })
   @ApiResponse({ status: 422, description: 'Email already exists' })
   async create(@Body() dto: CreateUserRequestDto): Promise<CreateUserResponseDto> {
     const output = await this.createUserUseCase.execute({
