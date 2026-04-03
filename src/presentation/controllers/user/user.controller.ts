@@ -1,8 +1,8 @@
-import { CreateUserUseCase } from '@application/user/use-cases/create/create-user.use-case';
-import { DeleteUserUseCase } from '@application/user/use-cases/delete/delete-user.use-case';
-import { GetUserUseCase } from '@application/user/use-cases/get/get-user.use-case';
-import { ListUsersUseCase } from '@application/user/use-cases/list/list-users.use-case';
-import { UpdateUserUseCase } from '@application/user/use-cases/update/update-user.use-case';
+import { CreateUserUseCase } from '@application/usecases/user/create/create-user.use-case';
+import { DeleteUserUseCase } from '@application/usecases/user/delete/delete-user.use-case';
+import { GetUserUseCase } from '@application/usecases/user/get/get-user.use-case';
+import { ListUsersUseCase } from '@application/usecases/user/list/list-users.use-case';
+import { UpdateUserUseCase } from '@application/usecases/user/update/update-user.use-case';
 import { Body, Controller, Post, Get, Patch, Delete, Param, Query } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiParam } from '@nestjs/swagger';
 import {
