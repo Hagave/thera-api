@@ -17,6 +17,7 @@ import {
   UpdateUserResponseDto,
 } from '@presentation/dtos/user/update-user.dto';
 
+@ApiTags('Users')
 @Controller('users')
 export class UserController {
   constructor(
