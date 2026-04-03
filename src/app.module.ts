@@ -2,6 +2,7 @@ import { Global, Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { APP_FILTER, APP_INTERCEPTOR } from '@nestjs/core';
 import { HealthController } from '@presentation/controllers/health/health.controller';
+import { AuthModule } from '@presentation/modules/auth.module';
 import { PrismaModule } from '@presentation/modules/prisma.module';
 import { ProductModule } from '@presentation/modules/product.module';
 import { RedisModule } from '@presentation/modules/redis.module';
@@ -22,6 +23,7 @@ import { WinstonLoggerService } from '@shared/logger/winston-logger.service';
     RedisModule,
     UserModule,
     ProductModule,
+    AuthModule,
   ],
   providers: [
     WinstonLoggerService,
