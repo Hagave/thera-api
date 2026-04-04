@@ -4,13 +4,13 @@ import { IsString } from 'class-validator';
 export class LogoutRequestDto {
   @ApiProperty()
   @IsString()
-  refreshToken: string;
+  refreshToken!: string;
 }
 
 export class LogoutResponseDto {
   @ApiProperty()
-  success: boolean;
+  success!: boolean;
 
   @ApiProperty()
-  message: string;
+  message!: string;
 }

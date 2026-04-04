@@ -67,7 +67,6 @@ export class PrismaProductRepository implements IProductRepository {
       deletedAt: null,
     };
 
-    // Aplicar filtros
     if (filters?.name) {
       where.name = {
         contains: filters.name,
@@ -98,7 +97,6 @@ export class PrismaProductRepository implements IProductRepository {
       };
     }
 
-    // Ordenação
     const orderBy: Prisma.ProductOrderByWithRelationInput = {};
     const sortBy = filters?.sortBy || 'createdAt';
     const sortOrder = filters?.sortOrder || 'desc';

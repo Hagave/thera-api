@@ -5,13 +5,15 @@ import { IUserRepository, USER_REPOSITORY } from '@domain/user/repositories/user
 import { UserNotFoundException } from '@domain/user/exceptions/user-not-found.exception';
 import { Email } from '@shared/value-objects/email.vo';
 import { EmailAlreadyExistsException } from '@domain/user/exceptions/email-already-exists.exception';
-import { WeakPasswordException } from '@domain/user/exceptions/weak-password.exception';
+import { ValidationException } from '@shared/exceptions/validation.exception';
+import { HashService } from '@application/auth/services/hash.service';
 
 @Injectable()
 export class UpdateUserUseCase {
   constructor(
     @Inject(USER_REPOSITORY)
     private readonly userRepository: IUserRepository,
+    private readonly hashService: HashService,
   ) {}
 
   async execute(input: IUpdateUserInput): Promise<IUpdateUserOutput> {
@@ -21,16 +23,13 @@ export class UpdateUserUseCase {
       throw new UserNotFoundException(input.id);
     }
 
-    // Atualizar nome
     if (input.name) {
       user.setName(input.name);
     }
 
-    // Atualizar email
     if (input.email) {
       const newEmail = new Email(input.email);
 
-      // Verificar se novo email já está em uso por outro usuário
       const existingUser = await this.userRepository.findByEmail(newEmail.getValue());
       if (existingUser && existingUser.getId() !== user.getId()) {
         throw new EmailAlreadyExistsException(newEmail.getValue());
@@ -39,10 +38,9 @@ export class UpdateUserUseCase {
       user.setEmail(newEmail);
     }
 
-    // Atualizar senha
     if (input.password) {
       this.validatePassword(input.password);
-      const hashedPassword = await hash(input.password, 10);
+      const hashedPassword = await this.hashService.hash(input.password);
       user.setPassword(hashedPassword);
     }
 
@@ -70,7 +68,9 @@ export class UpdateUserUseCase {
       !hasNumber ||
       !hasSpecialChar
     ) {
-      throw new WeakPasswordException();
+      throw new ValidationException(
+        'Password must be at least 8 characters long and contain uppercase, lowercase, number and special character',
+      );
     }
   }
 }

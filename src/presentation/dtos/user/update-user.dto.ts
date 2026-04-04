@@ -23,14 +23,14 @@ export class UpdateUserRequestDto {
 
 export class UpdateUserResponseDto {
   @ApiProperty()
-  id: string;
+  id!: string;
 
   @ApiProperty()
-  name: string;
+  name!: string;
 
   @ApiProperty()
-  email: string;
+  email!: string;
 
   @ApiProperty()
-  updatedAt: Date;
+  updatedAt!: Date;
 }

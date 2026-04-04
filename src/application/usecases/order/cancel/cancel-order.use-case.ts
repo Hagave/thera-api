@@ -1,8 +1,7 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { ICancelOrderInput, ICancelOrderOutput } from './cancel-order.use-case.dto';
 import { IOrderRepository, ORDER_REPOSITORY } from '@domain/order/repositories/order.repository';
-import { OrderNotFoundException } from '@domain/order/exceptions/order-not-found.exception';
-import { InvalidOrderStatusException } from '@domain/order/exceptions/invalid-order-status.exception';
+import { ValidationException } from '@shared/exceptions/validation.exception';
 
 @Injectable()
 export class CancelOrderUseCase {
@@ -15,14 +14,13 @@ export class CancelOrderUseCase {
     const order = await this.orderRepository.findById(input.id);
 
     if (!order) {
-      throw new OrderNotFoundException(input.id);
+      throw new ValidationException(`Order with ID ${input.id} not found`);
     }
 
     if (!order.getStatus().isPending()) {
-      throw new InvalidOrderStatusException('Only pending orders can be cancelled');
+      throw new ValidationException('Only pending orders can be cancelled');
     }
 
-    // Cancelar pedido com devolução de estoque (transação no repository)
     const stockReturns = new Map<string, number>();
     for (const item of order.getItems()) {
       stockReturns.set(item.getProductId(), item.getQuantity());

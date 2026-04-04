@@ -6,9 +6,8 @@ import { Inject, Injectable } from '@nestjs/common';
 import { IUpdateProductInput, IUpdateProductOutput } from './update-product.use-case.dto';
 import { ProductNotFoundException } from '@domain/product/exceptions/product-not-found.exception';
 import { ProductAlreadyExistsException } from '@domain/product/exceptions/product-already-exists.exception';
-import { InvalidPriceException } from '@domain/product/exceptions/invalid-price.exception';
 import { Money } from '@shared/value-objects/money.vo';
-import { InvalidStockException } from '@domain/product/exceptions/invalid-stock.exception';
+import { ValidationException } from '@shared/exceptions/validation.exception';
 
 @Injectable()
 export class UpdateProductUseCase {
@@ -24,17 +23,14 @@ export class UpdateProductUseCase {
       throw new ProductNotFoundException(input.id);
     }
 
-    // Atualizar nome
     if (input.name) {
       product.setName(input.name);
     }
 
-    // Atualizar categoria
     if (input.category) {
       product.setCategory(input.category);
     }
 
-    // Verificar unicidade de nome+categoria se mudou algum dos dois
     if (input.name || input.category) {
       const existing = await this.productRepository.findByNameAndCategory(
         product.getName(),
@@ -46,23 +42,20 @@ export class UpdateProductUseCase {
       }
     }
 
-    // Atualizar descrição
     if (input.description) {
       product.setDescription(input.description);
     }
 
-    // Atualizar preço
     if (input.price !== undefined) {
       if (input.price <= 0) {
-        throw new InvalidPriceException();
+        throw new ValidationException('Price must be greater than zero');
       }
       product.setPrice(new Money(input.price));
     }
 
-    // Atualizar estoque
     if (input.stock !== undefined) {
       if (input.stock < 0) {
-        throw new InvalidStockException();
+        throw new ValidationException('Stock cannot be negative');
       }
       product.setStock(input.stock);
     }

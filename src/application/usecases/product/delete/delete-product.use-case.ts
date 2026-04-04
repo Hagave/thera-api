@@ -5,12 +5,16 @@ import {
 import { Inject, Injectable } from '@nestjs/common';
 import { IDeleteProductInput, IDeleteProductOutput } from './delete-product.use-case.dto';
 import { ProductNotFoundException } from '@domain/product/exceptions/product-not-found.exception';
+import { IOrderRepository, ORDER_REPOSITORY } from '@domain/order/repositories/order.repository';
+import { ProductHasOrdersException } from '@domain/product/exceptions/product-has-orders.exception';
 
 @Injectable()
 export class DeleteProductUseCase {
   constructor(
     @Inject(PRODUCT_REPOSITORY)
     private readonly productRepository: IProductRepository,
+    @Inject(ORDER_REPOSITORY)
+    private readonly orderRepository: IOrderRepository,
   ) {}
 
   async execute(input: IDeleteProductInput): Promise<IDeleteProductOutput> {
@@ -20,8 +24,12 @@ export class DeleteProductUseCase {
       throw new ProductNotFoundException(input.id);
     }
 
-    // TODO: Verificar se produto tem pedidos pendentes
-    // Isso será implementado quando tivermos o módulo Order
+    // Verificar se produto tem pedidos
+    const hasOrders = await this.orderRepository.hasOrdersByProductId(input.id);
+
+    if (hasOrders) {
+      throw new ProductHasOrdersException(input.id);
+    }
 
     await this.productRepository.delete(input.id);
 

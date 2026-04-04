@@ -21,37 +21,37 @@ export class ListOrdersQueryDto {
 
 export class OrderListItemDto {
   @ApiProperty()
-  id: string;
+  id!: string;
 
   @ApiProperty()
-  userId: string;
+  userId!: string;
 
   @ApiProperty()
-  totalItems: number;
+  totalItems!: number;
 
   @ApiProperty()
-  total: number;
+  total!: number;
 
   @ApiProperty()
-  status: string;
+  status!: string;
 
   @ApiProperty()
-  createdAt: Date;
+  createdAt!: Date;
 }
 
 export class ListOrdersResponseDto {
   @ApiProperty({ type: [OrderListItemDto] })
-  orders: OrderListItemDto[];
+  orders!: OrderListItemDto[];
 
   @ApiProperty()
-  total: number;
+  total!: number;
 
   @ApiProperty()
-  page: number;
+  page!: number;
 
   @ApiProperty()
-  limit: number;
+  limit!: number;
 
   @ApiProperty()
-  totalPages: number;
+  totalPages!: number;
 }

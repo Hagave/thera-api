@@ -13,6 +13,7 @@ export interface IProductFilters {
 export interface IProductRepository {
   create(product: Product): Promise<Product>;
   findById(id: string): Promise<Product | null>;
+  findByIds(ids: string[]): Promise<Product[]>;
   findByNameAndCategory(name: string, category: string): Promise<Product | null>;
   update(product: Product): Promise<Product>;
   delete(id: string): Promise<void>;

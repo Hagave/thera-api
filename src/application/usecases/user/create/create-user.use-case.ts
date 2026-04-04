@@ -1,14 +1,14 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { hash } from 'bcrypt';
 import { v4 as uuidv4 } from 'uuid';
 import { ICreateUserInput, ICreateUserOutput } from './create-user.use-case.dto';
 import { IUserRepository, USER_REPOSITORY } from '@domain/user/repositories/user.repository';
 import { Email } from '@shared/value-objects/email.vo';
 import { EmailAlreadyExistsException } from '@domain/user/exceptions/email-already-exists.exception';
 import { User } from '@domain/user/entities/user.entity';
-import { WeakPasswordException } from '@domain/user/exceptions/weak-password.exception';
 import { RedisIdempotencyRepository } from '@infrastructure/cache/repositories/redis-idempotency.repository';
 import { DuplicateRequestException } from '@shared/exceptions/duplicate-request.exception';
+import { ValidationException } from '@shared/exceptions/validation.exception';
+import { HashService } from '@application/auth/services/hash.service';
 
 @Injectable()
 export class CreateUserUseCase {
@@ -16,6 +16,7 @@ export class CreateUserUseCase {
     @Inject(USER_REPOSITORY)
     private readonly userRepository: IUserRepository,
     private readonly idempotencyRepository: RedisIdempotencyRepository,
+    private readonly hashService: HashService,
   ) {}
 
   async execute(input: ICreateUserInput): Promise<ICreateUserOutput> {
@@ -35,7 +36,7 @@ export class CreateUserUseCase {
       throw new EmailAlreadyExistsException(email.getValue());
     }
 
-    const hashedPassword = await hash(input.password, 10);
+    const hashedPassword = await this.hashService.hash(input.password);
 
     const user = new User({
       id: uuidv4(),
@@ -74,7 +75,9 @@ export class CreateUserUseCase {
       !hasNumber ||
       !hasSpecialChar
     ) {
-      throw new WeakPasswordException();
+      throw new ValidationException(
+        'Password must be at least 8 characters long and contain uppercase, lowercase, number and special character',
+      );
     }
   }
 }

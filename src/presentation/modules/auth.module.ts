@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
 import { ConfigModule, ConfigService } from '@nestjs/config';
@@ -15,6 +15,7 @@ import { RefreshTokenUseCase } from '@application/usecases/refresh-token/refresh
 
 @Module({
   imports: [
+    forwardRef(() => UserModule),
     PassportModule,
     JwtModule.registerAsync({
       imports: [ConfigModule],
@@ -26,7 +27,6 @@ import { RefreshTokenUseCase } from '@application/usecases/refresh-token/refresh
       }),
       inject: [ConfigService],
     }),
-    UserModule,
   ],
   controllers: [AuthController],
   providers: [
@@ -41,5 +41,6 @@ import { RefreshTokenUseCase } from '@application/usecases/refresh-token/refresh
       useClass: RedisTokenRepository,
     },
   ],
+  exports: [HashService],
 })
 export class AuthModule {}

@@ -6,11 +6,11 @@ export class CreateUserRequestDto {
   @IsString()
   @MinLength(3)
   @MaxLength(100)
-  name: string;
+  name!: string;
 
   @ApiProperty({ example: 'john@example.com', description: 'User email' })
   @IsEmail()
-  email: string;
+  email!: string;
 
   @ApiProperty({
     example: 'SecurePass@123',
@@ -19,19 +19,19 @@ export class CreateUserRequestDto {
   })
   @IsString()
   @MinLength(8)
-  password: string;
+  password!: string;
 }
 
 export class CreateUserResponseDto {
   @ApiProperty()
-  id: string;
+  id!: string;
 
   @ApiProperty()
-  name: string;
+  name!: string;
 
   @ApiProperty()
-  email: string;
+  email!: string;
 
   @ApiProperty()
-  createdAt: Date;
+  createdAt!: Date;
 }

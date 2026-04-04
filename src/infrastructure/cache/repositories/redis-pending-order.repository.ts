@@ -4,7 +4,7 @@ import { RedisService } from '../redis/redis.service';
 @Injectable()
 export class RedisPendingOrderRepository {
   private readonly PREFIX = 'pending_order';
-  private readonly TTL = 1; // 1800 = 30 minutos em segundos
+  private readonly TTL = 1800; // 1800 = 30 minutos em segundos
 
   constructor(private readonly redis: RedisService) {}
 

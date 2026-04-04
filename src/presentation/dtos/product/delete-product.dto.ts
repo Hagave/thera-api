@@ -2,8 +2,8 @@ import { ApiProperty } from '@nestjs/swagger';
 
 export class DeleteProductResponseDto {
   @ApiProperty()
-  success: boolean;
+  success!: boolean;
 
   @ApiProperty()
-  message: string;
+  message!: string;
 }

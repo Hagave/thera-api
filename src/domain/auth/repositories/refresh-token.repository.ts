@@ -1,4 +1,4 @@
-import { RefreshToken } from '../entities/refresh-token.entity';
+export const REFRESH_TOKEN_REPOSITORY = Symbol('REFRESH_TOKEN_REPOSITORY');
 
 export interface IRefreshTokenRepository {
   save(userId: string, token: string, expiresIn: number): Promise<void>;
@@ -6,5 +6,3 @@ export interface IRefreshTokenRepository {
   delete(token: string): Promise<void>;
   deleteAllByUserId(userId: string): Promise<void>;
 }
-
-export const REFRESH_TOKEN_REPOSITORY = Symbol('REFRESH_TOKEN_REPOSITORY');

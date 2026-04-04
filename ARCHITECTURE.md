@@ -32,28 +32,6 @@ graph TB
 Ou versão ainda mais simples (ASCII art):
 ```
 
-┌─────────────────────────────────────┐
-│ Presentation Layer │
-│ (Controllers, DTOs, Guards) │
-└──────────────┬──────────────────────┘
-│
-┌──────────────▼──────────────────────┐
-│ Application Layer │
-│ (Use Cases, Services) │
-└──────────────┬──────────────────────┘
-│
-┌──────────────▼──────────────────────┐
-│ Domain Layer (Core) │
-│ (Entities, VOs, Repo Interfaces) │
-└──────────────┬──────────────────────┘
-│
-┌──────────────▼──────────────────────┐
-│ Infrastructure Layer │
-│ (Prisma Repos, Redis, Mappers) │
-└──────┬────────────────────┬─────────┘
-│ │
-PostgreSQL Redis
-
 **Separação em 4 camadas:**
 
 - **Domain:** Regras de negócio puras (sem frameworks, sem I/O)

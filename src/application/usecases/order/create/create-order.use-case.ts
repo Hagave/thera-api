@@ -1,4 +1,3 @@
-import { EmptyOrderException } from '@domain/order/exceptions/empty-order.exception';
 import { IOrderRepository, ORDER_REPOSITORY } from '@domain/order/repositories/order.repository';
 import {
   IProductRepository,
@@ -8,7 +7,6 @@ import { Inject, Injectable } from '@nestjs/common';
 import { v4 as uuidv4 } from 'uuid';
 import { ICreateOrderInput, ICreateOrderOutput } from './create-order.use-case.dto';
 import { ProductNotFoundException } from '@domain/product/exceptions/product-not-found.exception';
-import { InsufficientStockException } from '@domain/product/exceptions/insufficient-stock.exception';
 import { OrderItem } from '@domain/order/entities/order-item.entity';
 import { Money } from '@shared/value-objects/money.vo';
 import { Order } from '@domain/order/entities/order.entity';
@@ -16,6 +14,7 @@ import { OrderStatus } from '@domain/order/value-objects/order-status.vo';
 import { RedisIdempotencyRepository } from '@infrastructure/cache/repositories/redis-idempotency.repository';
 import { DuplicateRequestException } from '@shared/exceptions/duplicate-request.exception';
 import { RedisPendingOrderRepository } from '@infrastructure/cache/repositories/redis-pending-order.repository';
+import { ValidationException } from '@shared/exceptions/validation.exception';
 
 @Injectable()
 export class CreateOrderUseCase {
@@ -29,7 +28,6 @@ export class CreateOrderUseCase {
   ) {}
 
   async execute(input: ICreateOrderInput): Promise<ICreateOrderOutput> {
-    // Verificar idempotência
     if (input.idempotencyKey) {
       const existing = await this.idempotencyRepository.get(input.idempotencyKey);
       if (existing) {
@@ -37,34 +35,25 @@ export class CreateOrderUseCase {
       }
     }
 
-    // Validar pedido não vazio
     if (!input.items || input.items.length === 0) {
-      throw new EmptyOrderException();
+      throw new ValidationException('Order must contain at least one item');
     }
 
-    // Buscar todos os produtos
-    const productPromises = input.items.map((item) =>
-      this.productRepository.findById(item.productId),
-    );
-    const products = await Promise.all(productPromises);
+    const productIds = [...new Set(input.items.map((item) => item.productId))];
+    const products = await this.productRepository.findByIds(productIds);
 
-    // Validar que todos os produtos existem
-    const productMap = new Map();
-    for (let i = 0; i < products.length; i++) {
-      const product = products[i];
-      const requestedItem = input.items[i];
+    const productMap = new Map(products.map((p) => [p.getId(), p]));
 
+    for (const productId of productIds) {
+      const product = productMap.get(productId);
       if (!product || product.isDeleted()) {
-        throw new ProductNotFoundException(requestedItem.productId);
+        throw new ProductNotFoundException(productId);
       }
-
-      productMap.set(product.getId(), product);
     }
 
-    // Criar OrderItems
     const orderId = uuidv4();
     const orderItems = input.items.map((item) => {
-      const product = productMap.get(item.productId);
+      const product = productMap.get(item.productId)!;
       return new OrderItem({
         id: uuidv4(),
         orderId,
@@ -74,7 +63,6 @@ export class CreateOrderUseCase {
       });
     });
 
-    // Criar Order
     const order = new Order({
       id: orderId,
       userId: input.userId,
@@ -96,22 +84,19 @@ export class CreateOrderUseCase {
       updatedAt: order.getUpdatedAt(),
     });
 
-    // Preparar reservas de estoque
     const stockReservations = new Map<string, number>();
     for (const item of finalOrder.getItems()) {
-      stockReservations.set(item.getProductId(), item.getQuantity());
+      const current = stockReservations.get(item.getProductId()) ?? 0;
+      stockReservations.set(item.getProductId(), current + item.getQuantity());
     }
 
-    // Criar pedido COM reserva de estoque (transação atômica)
     const created = await this.orderRepository.createOrderWithStockReservation(
       finalOrder,
       stockReservations,
     );
 
-    // Adicionar ao Redis como PENDING (expira em 30min)
     await this.pendingOrderRepository.addPendingOrder(created.getId(), input.userId);
 
-    // Salvar idempotency key
     if (input.idempotencyKey) {
       await this.idempotencyRepository.set(input.idempotencyKey, created.getId());
     }
@@ -120,7 +105,7 @@ export class CreateOrderUseCase {
       id: created.getId(),
       userId: created.getUserId(),
       items: created.getItems().map((item) => {
-        const product = productMap.get(item.getProductId());
+        const product = productMap.get(item.getProductId())!;
         return {
           productId: item.getProductId(),
           productName: product.getName(),

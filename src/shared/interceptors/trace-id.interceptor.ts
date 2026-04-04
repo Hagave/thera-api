@@ -1,6 +1,5 @@
 import { Injectable, NestInterceptor, ExecutionContext, CallHandler } from '@nestjs/common';
 import { Observable } from 'rxjs';
-import { tap } from 'rxjs/operators';
 import { v4 as uuidv4 } from 'uuid';
 import { FastifyRequest, FastifyReply } from 'fastify';
 
@@ -17,10 +16,6 @@ export class TraceIdInterceptor implements NestInterceptor {
 
     response.header('x-trace-id', traceId);
 
-    return next.handle().pipe(
-      tap(() => {
-        // Aqui podemos logar se necessário
-      }),
-    );
+    return next.handle();
   }
 }

@@ -5,12 +5,12 @@ import { IsArray, IsInt, IsUUID, Min, ValidateNested, ArrayMinSize } from 'class
 export class CreateOrderItemDto {
   @ApiProperty({ example: 'uuid-do-produto' })
   @IsUUID()
-  productId: string;
+  productId!: string;
 
   @ApiProperty({ example: 2, minimum: 1 })
   @IsInt()
   @Min(1)
-  quantity: number;
+  quantity!: number;
 }
 
 export class CreateOrderRequestDto {
@@ -19,42 +19,42 @@ export class CreateOrderRequestDto {
   @ArrayMinSize(1)
   @ValidateNested({ each: true })
   @Type(() => CreateOrderItemDto)
-  items: CreateOrderItemDto[];
+  items!: CreateOrderItemDto[];
 }
 
 export class OrderItemResponseDto {
   @ApiProperty()
-  productId: string;
+  productId!: string;
 
   @ApiProperty()
-  productName: string;
+  productName!: string;
 
   @ApiProperty()
-  quantity: number;
+  quantity!: number;
 
   @ApiProperty()
-  price: number;
+  price!: number;
 
   @ApiProperty()
-  subtotal: number;
+  subtotal!: number;
 }
 
 export class CreateOrderResponseDto {
   @ApiProperty()
-  id: string;
+  id!: string;
 
   @ApiProperty()
-  userId: string;
+  userId!: string;
 
   @ApiProperty({ type: [OrderItemResponseDto] })
-  items: OrderItemResponseDto[];
+  items!: OrderItemResponseDto[];
 
   @ApiProperty()
-  total: number;
+  total!: number;
 
   @ApiProperty()
-  status: string;
+  status!: string;
 
   @ApiProperty()
-  createdAt: Date;
+  createdAt!: Date;
 }

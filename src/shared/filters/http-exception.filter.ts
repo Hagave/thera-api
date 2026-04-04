@@ -35,7 +35,6 @@ export class HttpExceptionFilter implements ExceptionFilter {
       reply.header('X-Resource-Id', exception.existingResourceId);
     }
 
-    // Enviar resposta
     reply.status(status).send({
       statusCode: status,
       timestamp: new Date().toISOString(),
@@ -76,7 +75,15 @@ export class HttpExceptionFilter implements ExceptionFilter {
   private getErrorMessage(exception: unknown): string {
     if (exception instanceof HttpException) {
       const response = exception.getResponse();
-      return typeof response === 'string' ? response : (response as any).message;
+
+      if (typeof response === 'string') {
+        return response;
+      }
+
+      if (typeof response === 'object' && response !== null && 'message' in response) {
+        const message = (response as { message: string | string[] }).message;
+        return Array.isArray(message) ? message.join(', ') : message;
+      }
     }
 
     if (exception instanceof Error) {

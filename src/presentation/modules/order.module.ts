@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { ProductModule } from './product.module';
 import { OrderController } from '@presentation/controllers/order/order.controller';
 import { CreateOrderUseCase } from '@application/usecases/order/create/create-order.use-case';
@@ -13,7 +13,7 @@ import { RedisPendingOrderRepository } from '@infrastructure/cache/repositories/
 import { CancelOrderUseCase } from '@application/usecases/order/cancel/cancel-order.use-case';
 
 @Module({
-  imports: [ProductModule],
+  imports: [forwardRef(() => ProductModule)],
   controllers: [OrderController],
   providers: [
     CreateOrderUseCase,

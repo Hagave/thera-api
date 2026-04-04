@@ -40,13 +40,6 @@ export class PrismaUserRepository implements IUserRepository {
     return this.mapper.toDomain(updated);
   }
 
-  async delete(id: string): Promise<void> {
-    await this.prisma.user.update({
-      where: { id },
-      data: { deletedAt: new Date() },
-    });
-  }
-
   async list(page: number, limit: number): Promise<{ users: User[]; total: number }> {
     const skip = (page - 1) * limit;
 

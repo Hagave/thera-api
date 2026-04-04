@@ -1,14 +1,13 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { IRefreshTokenInput, IRefreshTokenOutput } from './refresh-token.use-case.dto';
-
 import {
   IRefreshTokenRepository,
   REFRESH_TOKEN_REPOSITORY,
 } from '@domain/auth/repositories/refresh-token.repository';
 import { IUserRepository, USER_REPOSITORY } from '@domain/user/repositories/user.repository';
 import { TokenService } from '@application/auth/services/token.service';
-import { InvalidTokenException } from '@domain/auth/exceptions/invalid-token.exception';
 import { UserNotFoundException } from '@domain/user/exceptions/user-not-found.exception';
+import { ValidationException } from '@shared/exceptions/validation.exception';
 @Injectable()
 export class RefreshTokenUseCase {
   constructor(
@@ -20,24 +19,20 @@ export class RefreshTokenUseCase {
   ) {}
 
   async execute(input: IRefreshTokenInput): Promise<IRefreshTokenOutput> {
-    // Buscar userId pelo refresh token
     const userId = await this.refreshTokenRepository.findByToken(input.refreshToken);
 
     if (!userId) {
-      throw new InvalidTokenException();
+      throw new ValidationException('Invalid refresh token');
     }
 
-    // Buscar usuário
     const user = await this.userRepository.findById(userId);
 
     if (!user || user.isDeleted()) {
       throw new UserNotFoundException(userId);
     }
 
-    // Invalidar refresh token antigo
     await this.refreshTokenRepository.delete(input.refreshToken);
 
-    // Gerar novo par de tokens
     const accessToken = this.tokenService.generateAccessToken({
       sub: user.getId(),
       email: user.getEmail().getValue(),
@@ -46,7 +41,6 @@ export class RefreshTokenUseCase {
 
     const newRefreshToken = this.tokenService.generateRefreshToken();
 
-    // Salvar novo refresh token
     const expiresIn = this.tokenService.getRefreshTokenExpiresIn();
     await this.refreshTokenRepository.save(user.getId(), newRefreshToken, expiresIn);
 

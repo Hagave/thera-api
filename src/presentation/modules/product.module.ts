@@ -6,11 +6,11 @@ import { UpdateProductUseCase } from '@application/usecases/product/update/updat
 import { PRODUCT_REPOSITORY } from '@domain/product/repositories/product.repository';
 import { ProductMapper } from '@infrastructure/mappers/product.mapper';
 import { PrismaProductRepository } from '@infrastructure/repositories/prisma-product.repository';
-import { Module } from '@nestjs/common';
-import { ProductController } from '@presentation/controllers/product/product.controller';
+import { forwardRef, Module } from '@nestjs/common';
+import { OrderModule } from './order.module';
 
 @Module({
-  controllers: [ProductController],
+  imports: [forwardRef(() => OrderModule)],
   providers: [
     CreateProductUseCase,
     GetProductUseCase,

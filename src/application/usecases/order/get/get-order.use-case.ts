@@ -1,8 +1,8 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { IGetOrderInput, IGetOrderOutput } from './get-order.use-case.dto';
 import { IOrderRepository, ORDER_REPOSITORY } from '@domain/order/repositories/order.repository';
-import { OrderNotFoundException } from '@domain/order/exceptions/order-not-found.exception';
 import { UnauthorizedException } from '@shared/exceptions/unauthorized.exception';
+import { NotFoundException } from '@shared/exceptions/not-found.exception';
 
 @Injectable()
 export class GetOrderUseCase {
@@ -15,10 +15,9 @@ export class GetOrderUseCase {
     const order = await this.orderRepository.findById(input.id);
 
     if (!order) {
-      throw new OrderNotFoundException(input.id);
+      throw new NotFoundException('Order', input.id);
     }
 
-    // Se userId foi fornecido, validar que o pedido pertence ao usuário
     if (input.userId && order.getUserId() !== input.userId) {
       throw new UnauthorizedException('You do not have permission to view this order');
     }

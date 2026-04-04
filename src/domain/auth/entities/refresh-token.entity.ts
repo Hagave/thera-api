@@ -19,7 +19,6 @@ export class RefreshToken {
     this.createdAt = props.createdAt;
   }
 
-  // Getters
   getId(): string {
     return this.id;
   }

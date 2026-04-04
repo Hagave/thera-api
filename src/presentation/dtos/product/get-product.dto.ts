@@ -2,26 +2,26 @@ import { ApiProperty } from '@nestjs/swagger';
 
 export class GetProductResponseDto {
   @ApiProperty()
-  id: string;
+  id!: string;
 
   @ApiProperty()
-  name: string;
+  name!: string;
 
   @ApiProperty()
-  category: string;
+  category!: string;
 
   @ApiProperty()
-  description: string;
+  description!: string;
 
   @ApiProperty()
-  price: number;
+  price!: number;
 
   @ApiProperty()
-  stock: number;
+  stock!: number;
 
   @ApiProperty()
-  createdAt: Date;
+  createdAt!: Date;
 
   @ApiProperty()
-  updatedAt: Date;
+  updatedAt!: Date;
 }

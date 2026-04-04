@@ -61,7 +61,7 @@ export class OrderExpirationScheduler {
           } catch (error) {
             this.logger.error(
               `Failed to cancel order ${order.getId()}`,
-              error.stack,
+              (error as Error).stack,
               'OrderExpirationScheduler',
             );
           }
@@ -74,7 +74,11 @@ export class OrderExpirationScheduler {
         this.logger.log('No expired orders found', 'OrderExpirationScheduler');
       }
     } catch (error) {
-      this.logger.error('Error checking expired orders', error.stack, 'OrderExpirationScheduler');
+      this.logger.error(
+        'Error checking expired orders',
+        (error as Error).stack,
+        'OrderExpirationScheduler',
+      );
     }
   }
 }

@@ -2,37 +2,37 @@ import { ApiProperty } from '@nestjs/swagger';
 
 export class GetOrderItemDto {
   @ApiProperty()
-  productId: string;
+  productId!: string;
 
   @ApiProperty()
-  quantity: number;
+  quantity!: number;
 
   @ApiProperty()
-  price: number;
+  price!: number;
 
   @ApiProperty()
-  subtotal: number;
+  subtotal!: number;
 }
 
 export class GetOrderResponseDto {
   @ApiProperty()
-  id: string;
+  id!: string;
 
   @ApiProperty()
-  userId: string;
+  userId!: string;
 
   @ApiProperty({ type: [GetOrderItemDto] })
-  items: GetOrderItemDto[];
+  items!: GetOrderItemDto[];
 
   @ApiProperty()
-  total: number;
+  total!: number;
 
   @ApiProperty()
-  status: string;
+  status!: string;
 
   @ApiProperty()
-  createdAt: Date;
+  createdAt!: Date;
 
   @ApiProperty()
-  updatedAt: Date;
+  updatedAt!: Date;
 }

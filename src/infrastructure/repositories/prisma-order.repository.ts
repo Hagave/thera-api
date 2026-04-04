@@ -175,4 +175,10 @@ export class PrismaOrderRepository implements IOrderRepository {
       return this.mapper.toDomain(updated);
     });
   }
+  async hasOrdersByProductId(productId: string): Promise<boolean> {
+    const count = await this.prisma.orderItem.count({
+      where: { productId },
+    });
+    return count > 0;
+  }
 }

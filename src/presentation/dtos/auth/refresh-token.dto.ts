@@ -4,13 +4,13 @@ import { IsString } from 'class-validator';
 export class RefreshTokenRequestDto {
   @ApiProperty()
   @IsString()
-  refreshToken: string;
+  refreshToken!: string;
 }
 
 export class RefreshTokenResponseDto {
   @ApiProperty()
-  accessToken: string;
+  accessToken!: string;
 
   @ApiProperty()
-  refreshToken: string;
+  refreshToken!: string;
 }

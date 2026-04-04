@@ -6,50 +6,50 @@ export class CreateProductRequestDto {
   @IsString()
   @MinLength(3)
   @MaxLength(200)
-  name: string;
+  name!: string;
 
   @ApiProperty({ example: 'Electronics' })
   @IsString()
   @MinLength(3)
   @MaxLength(100)
-  category: string;
+  category!: string;
 
   @ApiProperty({ example: 'High performance laptop' })
   @IsString()
   @MinLength(10)
   @MaxLength(1000)
-  description: string;
+  description!: string;
 
   @ApiProperty({ example: 3500.0, minimum: 0.01 })
   @IsNumber()
   @Min(0.01)
-  price: number;
+  price!: number;
 
   @ApiProperty({ example: 10, minimum: 0 })
   @IsNumber()
   @Min(0)
-  stock: number;
+  stock!: number;
 }
 
 export class CreateProductResponseDto {
   @ApiProperty()
-  id: string;
+  id!: string;
 
   @ApiProperty()
-  name: string;
+  name!: string;
 
   @ApiProperty()
-  category: string;
+  category!: string;
 
   @ApiProperty()
-  description: string;
+  description!: string;
 
   @ApiProperty()
-  price: number;
+  price!: number;
 
   @ApiProperty()
-  stock: number;
+  stock!: number;
 
   @ApiProperty()
-  createdAt: Date;
+  createdAt!: Date;
 }

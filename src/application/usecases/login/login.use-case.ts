@@ -8,7 +8,7 @@ import {
 import { IUserRepository, USER_REPOSITORY } from '@domain/user/repositories/user.repository';
 import { HashService } from '@application/auth/services/hash.service';
 import { TokenService } from '@application/auth/services/token.service';
-import { InvalidCredentialsException } from '@domain/auth/exceptions/invalid-credentials.exception';
+import { ValidationException } from '@shared/exceptions/validation.exception';
 @Injectable()
 export class LoginUseCase {
   constructor(
@@ -21,21 +21,18 @@ export class LoginUseCase {
   ) {}
 
   async execute(input: ILoginInput): Promise<ILoginOutput> {
-    // Buscar usuário por email
     const user = await this.userRepository.findByEmail(input.email);
 
     if (!user || user.isDeleted()) {
-      throw new InvalidCredentialsException();
+      throw new ValidationException('Invalid email or password');
     }
 
-    // Validar senha
     const isPasswordValid = await this.hashService.compare(input.password, user.getPassword());
 
     if (!isPasswordValid) {
-      throw new InvalidCredentialsException();
+      throw new ValidationException('Invalid email or password');
     }
 
-    // Gerar tokens
     const accessToken = this.tokenService.generateAccessToken({
       sub: user.getId(),
       email: user.getEmail().getValue(),
@@ -44,7 +41,6 @@ export class LoginUseCase {
 
     const refreshToken = this.tokenService.generateRefreshToken();
 
-    // Salvar refresh token no Redis
     const expiresIn = this.tokenService.getRefreshTokenExpiresIn();
     await this.refreshTokenRepository.save(user.getId(), refreshToken, expiresIn);
 

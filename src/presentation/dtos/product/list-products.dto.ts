@@ -62,40 +62,40 @@ export class ListProductsQueryDto {
 
 export class ProductItemDto {
   @ApiProperty()
-  id: string;
+  id!: string;
 
   @ApiProperty()
-  name: string;
+  name!: string;
 
   @ApiProperty()
-  category: string;
+  category!: string;
 
   @ApiProperty()
-  description: string;
+  description!: string;
 
   @ApiProperty()
-  price: number;
+  price!: number;
 
   @ApiProperty()
-  stock: number;
+  stock!: number;
 
   @ApiProperty()
-  createdAt: Date;
+  createdAt!: Date;
 }
 
 export class ListProductsResponseDto {
   @ApiProperty({ type: [ProductItemDto] })
-  products: ProductItemDto[];
+  products!: ProductItemDto[];
 
   @ApiProperty()
-  total: number;
+  total!: number;
 
   @ApiProperty()
-  page: number;
+  page!: number;
 
   @ApiProperty()
-  limit: number;
+  limit!: number;
 
   @ApiProperty()
-  totalPages: number;
+  totalPages!: number;
 }
