@@ -8,6 +8,7 @@ import { IUserRepository, USER_REPOSITORY } from '@domain/user/repositories/user
 import { TokenService } from '@application/auth/services/token.service';
 import { UserNotFoundException } from '@domain/user/exceptions/user-not-found.exception';
 import { ValidationException } from '@shared/exceptions/validation.exception';
+
 @Injectable()
 export class RefreshTokenUseCase {
   constructor(

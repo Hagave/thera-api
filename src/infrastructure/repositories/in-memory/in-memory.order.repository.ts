@@ -7,6 +7,7 @@ export class InMemoryOrderRepository implements IOrderRepository {
   public lastStockReturn?: Map<string, number>;
   public lastStockUpdate?: Map<string, number>;
   public lastStockReservation?: Map<string, number>;
+  private ordersByProduct = new Map<string, number>();
 
   async create(order: Order): Promise<Order> {
     this.orders.set(order.getId(), order);
@@ -74,10 +75,8 @@ export class InMemoryOrderRepository implements IOrderRepository {
       throw new Error('Order not found');
     }
 
-    // aplica regra de domínio
     order.complete();
 
-    // guarda para assert no teste
     this.lastStockUpdate = stockUpdates;
 
     return order;
@@ -94,7 +93,13 @@ export class InMemoryOrderRepository implements IOrderRepository {
     return order;
   }
 
-  async hasOrdersByProductId(): Promise<boolean> {
-    return false;
+  // Método que os testes vão usar para adicionar pedidos simulados
+  addOrderForProduct(productId: string) {
+    const current = this.ordersByProduct.get(productId) ?? 0;
+    this.ordersByProduct.set(productId, current + 1);
+  }
+
+  async hasOrdersByProductId(productId: string): Promise<boolean> {
+    return (this.ordersByProduct.get(productId) ?? 0) > 0;
   }
 }

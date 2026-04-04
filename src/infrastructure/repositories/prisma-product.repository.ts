@@ -28,6 +28,17 @@ export class PrismaProductRepository implements IProductRepository {
     return product ? this.mapper.toDomain(product) : null;
   }
 
+  async findByIds(ids: string[]): Promise<Product[]> {
+    const products = await this.prisma.product.findMany({
+      where: {
+        id: { in: ids },
+        deletedAt: null, //
+      },
+    });
+
+    return products.map((p) => this.mapper.toDomain(p));
+  }
+
   async findByNameAndCategory(name: string, category: string): Promise<Product | null> {
     const product = await this.prisma.product.findUnique({
       where: {

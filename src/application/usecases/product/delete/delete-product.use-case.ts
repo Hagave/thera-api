@@ -31,7 +31,9 @@ export class DeleteProductUseCase {
       throw new ProductHasOrdersException(input.id);
     }
 
-    await this.productRepository.delete(input.id);
+    product.delete();
+
+    await this.productRepository.update(product);
 
     return {
       success: true,
