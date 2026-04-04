@@ -22,6 +22,9 @@
 - [Funcionalidades](#funcionalidades)
 - [Comandos Úteis](#comandos-úteis)
 - [Variáveis de Ambiente](#variáveis-de-ambiente)
+- [Estrutura do Banco](#estrutura-do-banco)
+- [Testando a API](#testando-a-api)
+- [Troubleshooting](#troubleshooting)
 - [Documentação Adicional](#documentação-adicional)
 
 ---
