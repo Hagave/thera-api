@@ -29,7 +29,7 @@
 
 ---
 
-## 🎯 Sobre o Projeto
+## Sobre o Projeto
 
 Sistema completo de gerenciamento de pedidos e produtos desenvolvido como teste técnico, demonstrando:
 
@@ -56,7 +56,7 @@ Para detalhes sobre arquitetura e decisões de design, veja [ARCHITECTURE.md](./
 
 ---
 
-## 🛠️ Tecnologias
+## Tecnologias
 
 ### Core Stack
 
@@ -85,7 +85,7 @@ Para detalhes sobre arquitetura e decisões de design, veja [ARCHITECTURE.md](./
 
 ---
 
-## 📦 Requisitos
+## Requisitos
 
 - **Node.js** >= 22.0.0
 - **Docker** >= 20.10.0
@@ -94,7 +94,7 @@ Para detalhes sobre arquitetura e decisões de design, veja [ARCHITECTURE.md](./
 
 ---
 
-## 🚀 Instalação e Execução
+## Instalação e Execução
 
 ### Opção 1: Setup Automático (Recomendado) 🎉
 
@@ -201,7 +201,7 @@ yarn db:seed
 yarn start:dev
 ```
 
-## 📍 Endpoints da API
+## Endpoints da API
 
 **Acesse:** http://localhost:3000
 
@@ -257,7 +257,7 @@ GET    /health             # Health check
 
 ---
 
-## 🔐 Autenticação
+## Autenticação
 
 ### 1. Fazer Login
 
@@ -316,7 +316,7 @@ curl -X POST http://localhost:3000/auth/logout \
 
 ---
 
-## ✨ Funcionalidades
+## Funcionalidades
 
 ### 👥 Gerenciamento de Usuários
 
@@ -347,7 +347,7 @@ curl "http://localhost:3000/users?page=1&limit=10"
 
 ---
 
-### 📦 Gerenciamento de Produtos
+### Gerenciamento de Produtos
 
 **Criar Produto:**
 
@@ -382,7 +382,7 @@ curl "http://localhost:3000/products?name=notebook&minPrice=2000&maxPrice=5000&s
 
 ---
 
-### 🛒 Gerenciamento de Pedidos
+### Gerenciamento de Pedidos
 
 **Criar Pedido (com Idempotência):**
 
@@ -659,7 +659,7 @@ LOG_FILE_PATH=./logs
 
 ---
 
-## 📚 Documentação Adicional
+## Documentação Adicional
 
 - **[ARCHITECTURE.md](./ARCHITECTURE.md)** - Arquitetura detalhada, decisões de design, SOLID, patterns
 - **Swagger UI:** http://localhost:3000/api - Documentação interativa da API
@@ -667,7 +667,7 @@ LOG_FILE_PATH=./logs
 
 ---
 
-## 📊 Estrutura do Banco
+## Estrutura do Banco
 
 ### Tabelas Principais
 
@@ -715,7 +715,7 @@ LOG_FILE_PATH=./logs
 
 ---
 
-## 🧪 Testando a API
+## Testando a API
 
 ### Fluxo Completo
 
@@ -844,7 +844,7 @@ volumes:
 
 ---
 
-## 📝 Licença
+## Licença
 
 Este projeto foi desenvolvido como teste técnico.
 
@@ -856,7 +856,7 @@ Este projeto foi desenvolvido como teste técnico.
 
 ---
 
-## 🙏 Agradecimentos
+## Agradecimentos
 
 Projeto desenvolvido para demonstrar conhecimentos em:
 
