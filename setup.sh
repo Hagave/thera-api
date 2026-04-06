@@ -17,7 +17,6 @@ echo "║   Order Management API - Complete Setup              ║"
 echo "╚═══════════════════════════════════════════════════════╝"
 echo -e "${NC}"
 
-# Detectar se usa 'docker_compose' ou 'docker compose'
 # Detectar e criar função para Docker Compose
 echo -e "${YELLOW}🔍 Detecting Docker Compose command...${NC}"
 if command -v docker-compose &> /dev/null; then
@@ -30,6 +29,7 @@ else
     echo -e "${RED}❌ Docker Compose not found${NC}"
     exit 1
 fi
+
 # 1. Verificar se Docker está rodando
 echo -e "${YELLOW}🔍 Checking Docker...${NC}"
 if ! docker info > /dev/null 2>&1; then
@@ -39,6 +39,15 @@ fi
 echo -e "${GREEN}✅ Docker is running${NC}\n"
 
 # 2. Criar .env se não existir
+if [ ! -f .env ]; then
+    echo -e "${YELLOW}📝 Creating .env file from .env.example...${NC}"
+    cp .env.example .env
+    echo -e "${GREEN}✅ .env file created${NC}"
+    echo -e "${YELLOW}⚠️  Please review .env and update secrets before production!${NC}\n"
+else
+    echo -e "${GREEN}✅ .env file already exists${NC}\n"
+fi
+
 # Validar se JWT secrets foram configurados
 if grep -q "your-super-secret" .env; then
     echo -e "${RED}⚠️  WARNING: You are using default JWT secrets!${NC}"
@@ -101,13 +110,19 @@ until docker_compose exec -T redis redis-cli -a redis123 ping > /dev/null 2>&1; 
 done
 echo -e "\n${GREEN}✅ Redis is ready${NC}\n"
 
-# 8. Verificar se node_modules existe localmente (para development sem Docker)
-if [ ! -d "node_modules" ]; then
-    echo -e "${YELLOW}📦 Installing dependencies locally (for IDE support)...${NC}"
-    yarn install
-    echo -e "${GREEN}✅ Local dependencies installed${NC}\n"
+# 8. Verificar se node_modules existe localmente (para IDE support)
+if command -v yarn &> /dev/null; then
+    if [ ! -d "node_modules" ]; then
+        echo -e "${YELLOW}📦 Installing dependencies locally (for IDE support)...${NC}"
+        yarn install
+        echo -e "${GREEN}✅ Local dependencies installed${NC}\n"
+    else
+        echo -e "${GREEN}✅ node_modules already exists${NC}\n"
+    fi
 else
-    echo -e "${GREEN}✅ node_modules already exists${NC}\n"
+    echo -e "${YELLOW}⚠️  Yarn not found locally. Skipping local dependencies installation.${NC}"
+    echo -e "${YELLOW}   Dependencies will be installed inside Docker container.${NC}"
+    echo -e "${YELLOW}   To install Yarn: npm install -g yarn${NC}\n"
 fi
 
 # 9. Gerar Prisma Client
@@ -164,18 +179,18 @@ echo -e "${GREEN}   Health Check:${NC}       http://localhost:3000/health"
 echo
 
 echo -e "${BLUE}🗄️  Database Access:${NC}"
-echo -e "${GREEN}   Prisma Studio:${NC}      Run 'yarn prisma studio'"
+echo -e "${GREEN}   Prisma Studio:${NC}      Run 'yarn prisma studio' or 'docker compose exec app yarn prisma studio'"
 echo -e "${GREEN}   PostgreSQL:${NC}         localhost:5432 (user: postgres, pass: postgres)"
 echo -e "${GREEN}   Redis:${NC}              localhost:6379 (pass: redis123)"
 echo
 
 echo -e "${BLUE}📝 Useful Commands:${NC}"
-echo -e "   ${YELLOW}View logs:${NC}            docker_compose logs -f app"
-echo -e "   ${YELLOW}Stop all:${NC}             docker_compose down"
-echo -e "   ${YELLOW}Restart app:${NC}          docker_compose restart app"
-echo -e "   ${YELLOW}Run tests:${NC}            docker_compose exec app yarn test"
-echo -e "   ${YELLOW}Access container:${NC}     docker_compose exec app sh"
-echo -e "   ${YELLOW}View DB migrations:${NC}   docker_compose exec app yarn prisma studio"
+echo -e "   ${YELLOW}View logs:${NC}            docker compose logs -f app"
+echo -e "   ${YELLOW}Stop all:${NC}             docker compose down"
+echo -e "   ${YELLOW}Restart app:${NC}          docker compose restart app"
+echo -e "   ${YELLOW}Run tests:${NC}            docker compose exec app yarn test"
+echo -e "   ${YELLOW}Access container:${NC}     docker compose exec app sh"
+echo -e "   ${YELLOW}Prisma Studio:${NC}        docker compose exec app yarn prisma studio"
 echo
 
 echo -e "${BLUE}🧪 Test Credentials (from seed):${NC}"

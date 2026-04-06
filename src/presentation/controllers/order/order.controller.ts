@@ -24,6 +24,7 @@ import {
 } from '@presentation/dtos/order/list-orders.dto';
 import { JwtAuthGuard } from '@presentation/guards/jwt-auth.guard';
 import { CurrentUser, ICurrentUser } from '@shared/decorators/current-user.decorator';
+import { IdempotencyKey } from '@shared/decorators/idempotency-key.decorator';
 
 @ApiTags('Orders')
 @Controller('orders')
@@ -57,10 +58,12 @@ export class OrderController {
   async create(
     @Body() dto: CreateOrderRequestDto,
     @CurrentUser() user: ICurrentUser,
+    @IdempotencyKey() idempotencyKey?: string,
   ): Promise<CreateOrderResponseDto> {
     return await this.createOrderUseCase.execute({
       userId: user.id,
       items: dto.items,
+      idempotencyKey,
     });
   }
 
