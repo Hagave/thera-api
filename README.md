@@ -110,16 +110,16 @@ chmod +x setup.sh
 
 **O que o script faz:**
 
-1. ✅ Verifica Docker
-2. ✅ Cria `.env`
-3. ✅ Builda imagens
-4. ✅ Sobe PostgreSQL + Redis
-5. ✅ Aguarda serviços prontos
-6. ✅ Instala dependências
-7. ✅ Gera Prisma Client
-8. ✅ Roda migrations
-9. ✅ Popula banco (seed)
-10. ✅ Sobe aplicação
+1. Verifica Docker
+2. Cria `.env`
+3. Builda imagens
+4. Sobe PostgreSQL + Redis
+5. Aguarda serviços prontos
+6. Instala dependências
+7. Gera Prisma Client
+8. Roda migrations
+9. Popula banco (seed)
+10. Sobe aplicação
 
 **Após o setup:**
 
