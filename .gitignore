@@ -38,7 +38,6 @@ Thumbs.db
 *.sublime-project
 
 # Prisma
-src/infrastructure/database/prisma/migrations/*
 !src/infrastructure/database/prisma/migrations/.gitkeep
 
 # Temp files

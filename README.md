@@ -94,11 +94,11 @@ Para detalhes sobre arquitetura e decisões de design, veja [ARCHITECTURE.md](./
 
 ---
 
-## Instalação e Execução
-
 ### Opção 1: Setup Automático (Recomendado) 🎉
 
-O script `setup.sh` configura tudo automaticamente:
+O script `setup.sh` configura tudo automaticamente.
+
+#### Linux / macOS:
 
 ```bash
 # Tornar executável (primeira vez)
@@ -108,18 +108,35 @@ chmod +x setup.sh
 ./setup.sh
 ```
 
-**O que o script faz:**
+#### Windows (Git Bash / WSL):
 
-1. Verifica Docker
-2. Cria `.env`
-3. Builda imagens
-4. Sobe PostgreSQL + Redis
-5. Aguarda serviços prontos
-6. Instala dependências
-7. Gera Prisma Client
-8. Roda migrations
-9. Popula banco (seed)
-10. Sobe aplicação
+**Git Bash:**
+
+```bash
+bash setup.sh
+```
+
+**WSL (Windows Subsystem for Linux):**
+
+```bash
+chmod +x setup.sh
+./setup.sh
+```
+
+**PowerShell (alternativa manual):**
+
+```powershell
+# Subir ambiente manualmente
+docker compose up -d
+
+# Rodar migrations
+docker compose exec app yarn prisma migrate deploy
+
+# Rodar seed
+docker compose exec app yarn db:seed
+```
+
+---
 
 **Após o setup:**
 
